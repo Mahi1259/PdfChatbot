@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -48,6 +49,12 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Settings")
+        api_token = st.text_input(
+            "Hugging Face API token",
+            type="password",
+            help="Get one at https://huggingface.co/settings/tokens. "
+            "Token is kept in this browser session only.",
+        )
         model = st.selectbox("Model", SUPPORTED_MODELS, index=0)
         top_k = st.slider("Chunks to retrieve", min_value=1, max_value=8, value=3)
         if st.button("Clear chat history"):
@@ -110,6 +117,10 @@ def main() -> None:
     if not question:
         return
 
+    if not api_token and not os.getenv("HUGGING_FACE_API_TOKEN"):
+        st.warning("Please enter your Hugging Face API token in the sidebar to ask questions.")
+        return
+
     with st.chat_message("user"):
         st.markdown(question)
 
@@ -123,7 +134,12 @@ def main() -> None:
         contexts = [r.chunk.text for r in results]
         try:
             with st.spinner("Generating answer…"):
-                answer = generate_answer(model=model, question=question, contexts=contexts)
+                answer = generate_answer(
+                    model=model,
+                    question=question,
+                    contexts=contexts,
+                    api_token=api_token or None,
+                )
         except LLMTimeoutError as e:
             st.error(str(e))
             return
