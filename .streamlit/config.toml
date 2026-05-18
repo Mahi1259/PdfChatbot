@@ -1,0 +1,4 @@
+[server]
+# Don't crawl every installed package looking for changes — kills the
+# torchvision/transformers import noise in the logs.
+folderWatchBlacklist = [".venv", "**/site-packages"]
