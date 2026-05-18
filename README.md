@@ -6,12 +6,12 @@ I built this because skimming long PDFs is painful and Ctrl-F only gets you so f
 
 ## What it can do
 
-- Takes any text-based PDF — multi-page, paragraphs, tables, the usual
+- Takes any text-based PDF  multi-page, paragraphs, tables, the usual
 - Splits the text into chunks and does semantic search over them with FAISS
 - Lets you switch between Mistral, Llama 3, and Falcon (whichever you prefer)
 - Shows you the chunks it used to answer, so you can sanity-check the response
 - Keeps a chat history for the session
-- Tries to fail gracefully — unreadable PDFs, API timeouts, that kind of thing
+- Tries to fail gracefully  unreadable PDFs, API timeouts, that kind of thing
 
 ## What's in here
 
@@ -34,7 +34,7 @@ pdf-chatbot/
    cd pdf-chatbot
    ```
 
-2. **Set up a virtual environment** — strongly recommended unless you enjoy dependency conflicts
+2. **Set up a virtual environment**  strongly recommended unless you enjoy dependency conflicts
 
    ```bash
    python -m venv .venv
@@ -60,7 +60,7 @@ pdf-chatbot/
    HUGGING_FACE_API_TOKEN=hf_your_token_here
    ```
 
-   You can get one from <https://huggingface.co/settings/tokens>. Heads up: if you want to use Llama 3, you'll also need to accept its license on the model page first — Hugging Face is strict about that one.
+   You can get one from <https://huggingface.co/settings/tokens>. Heads up: if you want to use Llama 3, you'll also need to accept its license on the model page first  Hugging Face is strict about that one.
 
 5. **Fire it up**
 
@@ -82,6 +82,6 @@ Roughly, the pipeline goes like this:
 
 ## A few things to know
 
-- First run will download the embedding model — around 90 MB, so give it a minute.
+- First run will download the embedding model  around 90 MB, so give it a minute.
 - This won't work on scanned PDFs or anything that's basically just images. There's no OCR step.
 - Llama 3 (and a few others) need you to accept the license on Hugging Face before the API will let you use them. If you get a 403, that's usually why.
