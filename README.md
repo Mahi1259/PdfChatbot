@@ -1,40 +1,40 @@
 # PDF Chatbot
 
-A Streamlit chatbot that answers questions about an uploaded PDF using
-semantic search (FAISS + sentence-transformers) and the Hugging Face
-Inference API for answer generation.
+Drop a PDF in, ask questions about it, get answers. Built with Streamlit on top of FAISS for retrieval and the Hugging Face Inference API for the actual answers.
 
-## Features
+I built this because skimming long PDFs is painful and Ctrl-F only gets you so far when you don't know the exact wording you're looking for.
 
-- Upload any text-based PDF (multi-page, paragraphs and tables)
-- Chunked semantic search with FAISS
-- Switch between Mistral, Llama 3, and Falcon instruct models
-- Shows the source chunks used to answer each question
-- Per-session chat history
-- Clear error messages for unreadable PDFs, timeouts, and API outages
+## What it can do
 
-## Project structure
+- Takes any text-based PDF — multi-page, paragraphs, tables, the usual
+- Splits the text into chunks and does semantic search over them with FAISS
+- Lets you switch between Mistral, Llama 3, and Falcon (whichever you prefer)
+- Shows you the chunks it used to answer, so you can sanity-check the response
+- Keeps a chat history for the session
+- Tries to fail gracefully — unreadable PDFs, API timeouts, that kind of thing
+
+## What's in here
 
 ```
 pdf-chatbot/
-├── app.py              # main Streamlit app
-├── pdf_processor.py    # PDF extraction and chunking
-├── embeddings.py       # FAISS index and search
-├── llm.py              # Hugging Face API calls
+├── app.py              # the Streamlit UI
+├── pdf_processor.py    # pulls text/tables out of the PDF
+├── embeddings.py       # builds the FAISS index and runs the search
+├── llm.py              # talks to the Hugging Face API
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
 
-## Setup
+## Getting it running
 
-1. **Clone and enter the directory**
+1. **Grab the code**
 
    ```bash
    cd pdf-chatbot
    ```
 
-2. **Create a virtual environment** (recommended)
+2. **Set up a virtual environment** — strongly recommended unless you enjoy dependency conflicts
 
    ```bash
    python -m venv .venv
@@ -42,48 +42,46 @@ pdf-chatbot/
    # .venv\Scripts\activate     # Windows
    ```
 
-3. **Install dependencies**
+3. **Install the dependencies**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Configure your Hugging Face token**
+4. **Add your Hugging Face token**
 
    ```bash
    cp .env.example .env
    ```
 
-   Edit `.env` and set your token:
+   Then open `.env` and drop in your token:
 
    ```
    HUGGING_FACE_API_TOKEN=hf_your_token_here
    ```
 
-   Get a token at <https://huggingface.co/settings/tokens>.
-   For Llama 3, also accept the model license on its model page.
+   You can get one from <https://huggingface.co/settings/tokens>. Heads up: if you want to use Llama 3, you'll also need to accept its license on the model page first — Hugging Face is strict about that one.
 
-5. **Run the app**
+5. **Fire it up**
 
    ```bash
    streamlit run app.py
    ```
 
-   The app will open in your browser at <http://localhost:8501>.
+   It should pop open in your browser at <http://localhost:8501>.
 
-## How it works
+## How it actually works
 
-1. **Extraction** — `pdfplumber` pulls text and tables from each page.
-2. **Chunking** — text is split into ~500-character chunks with 50-character overlap.
-3. **Embedding** — chunks are embedded with `sentence-transformers/all-MiniLM-L6-v2`
-   and added to a FAISS inner-product index (cosine similarity on normalized vectors).
-4. **Retrieval** — your question is embedded and the top-k most similar chunks are pulled.
-5. **Generation** — the chunks plus your question are sent to the chosen Hugging Face
-   model with an instruction to answer only from the context.
+Roughly, the pipeline goes like this:
 
-## Notes
+1. **Extraction** — `pdfplumber` reads the PDF and pulls out the text and any tables.
+2. **Chunking** — that text gets sliced into ~500-character pieces with a bit of overlap (50 chars) so we don't cut sentences in half at the boundaries.
+3. **Embedding** — each chunk gets turned into a vector with `sentence-transformers/all-MiniLM-L6-v2` and stored in a FAISS index. Inner-product search on normalized vectors, which is effectively cosine similarity.
+4. **Retrieval** — when you ask something, your question gets embedded the same way and we grab the top-k closest chunks.
+5. **Generation** — those chunks plus your question get sent to whichever Hugging Face model you picked, with a prompt telling it to answer only from what's in the context. (It mostly listens.)
 
-- The first run downloads the embedding model (~90 MB).
-- Scanned/image-only PDFs will fail extraction — OCR is not included.
-- Some Hugging Face models (Llama 3) require explicit license acceptance on your account.
-# PdfChatbot
+## A few things to know
+
+- First run will download the embedding model — around 90 MB, so give it a minute.
+- This won't work on scanned PDFs or anything that's basically just images. There's no OCR step.
+- Llama 3 (and a few others) need you to accept the license on Hugging Face before the API will let you use them. If you get a 403, that's usually why.
