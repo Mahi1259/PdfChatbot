@@ -74,11 +74,11 @@ pdf-chatbot/
 
 Roughly, the pipeline goes like this:
 
-1. **Extraction** — `pdfplumber` reads the PDF and pulls out the text and any tables.
-2. **Chunking** — that text gets sliced into ~500-character pieces with a bit of overlap (50 chars) so we don't cut sentences in half at the boundaries.
-3. **Embedding** — each chunk gets turned into a vector with `sentence-transformers/all-MiniLM-L6-v2` and stored in a FAISS index. Inner-product search on normalized vectors, which is effectively cosine similarity.
-4. **Retrieval** — when you ask something, your question gets embedded the same way and we grab the top-k closest chunks.
-5. **Generation** — those chunks plus your question get sent to whichever Hugging Face model you picked, with a prompt telling it to answer only from what's in the context. (It mostly listens.)
+1. **Extraction**  `pdfplumber` reads the PDF and pulls out the text and any tables.
+2. **Chunking**  that text gets sliced into ~500-character pieces with a bit of overlap (50 chars) so we don't cut sentences in half at the boundaries.
+3. **Embedding**  each chunk gets turned into a vector with `sentence-transformers/all-MiniLM-L6-v2` and stored in a FAISS index. Inner-product search on normalized vectors, which is effectively cosine similarity.
+4. **Retrieval**  when you ask something, your question gets embedded the same way and we grab the top-k closest chunks.
+5. **Generation**  those chunks plus your question get sent to whichever Hugging Face model you picked, with a prompt telling it to answer only from what's in the context. (It mostly listens.)
 
 ## A few things to know
 
