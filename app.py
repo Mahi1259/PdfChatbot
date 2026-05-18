@@ -47,14 +47,29 @@ def main() -> None:
     if "pdf_meta" not in st.session_state:
         st.session_state.pdf_meta = None
 
+    if "api_token" not in st.session_state:
+        st.session_state.api_token = ""
+
     with st.sidebar:
         st.header("Settings")
-        api_token = st.text_input(
-            "Hugging Face API token",
-            type="password",
-            help="Get one at https://huggingface.co/settings/tokens. "
-            "Token is kept in this browser session only.",
-        )
+
+        with st.form("token_form", clear_on_submit=False):
+            token_input = st.text_input(
+                "Hugging Face API token",
+                type="password",
+                value=st.session_state.api_token,
+                help="Get one at https://huggingface.co/settings/tokens. "
+                "Token is kept in this browser session only.",
+            )
+            if st.form_submit_button("Save token", use_container_width=True):
+                st.session_state.api_token = token_input.strip()
+                if st.session_state.api_token:
+                    st.success("Token saved.")
+                else:
+                    st.info("Token cleared.")
+
+        api_token = st.session_state.api_token
+
         model = st.selectbox("Model", SUPPORTED_MODELS, index=0)
         top_k = st.slider("Chunks to retrieve", min_value=1, max_value=8, value=3)
         if st.button("Clear chat history"):
